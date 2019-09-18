@@ -105,14 +105,16 @@ Nodo*bajaNodo(Nodo *top, int pos){
 	}
 }
 
-Nodo *cambiaNodo(Nodo *top, int DATO, int nuevo){
-  /*  while(top!=NULL){
-        if(top->dato==DATO){
-            top->dato=nuevo;
-        }
-    }
-    return top;
-*/
+Nodo *cambiaNodo(Nodo *top, int viejo, int nuevo){
+	Nodo *aux;
+	aux=top;
+	while(aux->sig != NULL){
+		if(aux->dato==viejo){
+			aux->dato=nuevo;
+		}
+		aux=aux->sig;
+	}
+	return top;
 }
 
 int main(){
