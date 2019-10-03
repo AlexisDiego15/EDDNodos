@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-#include <string.h>   
+#include <string.h>
 
 
 typedef struct _Nodo{
@@ -55,15 +55,16 @@ void verListas(Evento *cima){
     Evento *aux;
     aux=cima;
     int id=1;
-    
+
 	if(valor==0){
 		printf("\nNo hay eventos guardados\n");
 	}else{
     	while(aux!=NULL){
-		    printf("\nId: %d\tFecha: %d/%d/%d\tEvento: %s",id,aux->fecha[0],aux->fecha[1],aux->fecha[2],aux->descripcion);
+		     //printf("\nId: %d\tFecha: %d/%d/%d\tEvento: %s",id,aux->fecha[0],aux->fecha[1],aux->fecha[2],aux->descripcion);
+            printf("\nId: %d\tFecha: %d/%d/%d\tCapacidad: %d\tEvento: %s",id,aux->fecha[0],aux->fecha[1],aux->fecha[2],aux->dato,aux->descripcion);
 		    aux=aux->sig;
 		    id++;
-		}	
+		}
 	}
 }
 
@@ -81,7 +82,7 @@ int disponibilidad(Evento *top, int dia, int mes, int an){
 			aux=aux->sig;
 		}
 		if(id>1){
-			aux=top;		
+			aux=top;
 			while(aux->sig!=NULL){
 				aux=aux->sig;
 				id=aux->dato;
@@ -94,7 +95,7 @@ int disponibilidad(Evento *top, int dia, int mes, int an){
 
 Evento *bajaNodo(Evento *top, int pos){
 	Evento *aux, *borrar;
-	int cont=1;
+	int cont=1, i;
 	aux=top;
 	if(pos==1){
 		if(top!= NULL){
@@ -103,7 +104,7 @@ Evento *bajaNodo(Evento *top, int pos){
         }
         return top;
     }else if(pos>1){
-		for(int i=1; i<pos-1; i++){
+		for(i=1; i<pos-1; i++){
 			if(aux->sig==NULL){
 				printf("Posicion equivocada");
 			}
@@ -115,14 +116,31 @@ Evento *bajaNodo(Evento *top, int pos){
 	}
 }
 
+Evento *bajaNodofe(Evento *top, int dia, int mes, int an){
+	Evento *aux;
+	aux=top;
+	int pos=1;
+   		while(aux!= NULL){
+			if(aux->fecha[0]==dia && aux->fecha[1]==mes && aux->fecha[2]==an){
+                top = bajaNodo(top, pos);
+			}else{
+                pos++;
+			}
+			aux=aux->sig;
+		}
+
+		return top;
+}
+
+
 void guardareventos(Evento *cima){
 	FILE * archivo;
     archivo=fopen("eventos.bin", "wb");
-    
+
     Evento *aux, *even;
 	aux=cima;
 	even=NULL;
-	
+
     if(archivo==NULL){
     	printf("ERROR");
 	}else{
@@ -132,11 +150,11 @@ void guardareventos(Evento *cima){
 			fseek(archivo,0,SEEK_END);
         	fwrite(aux, sizeof(Evento), 1, archivo);
 
-        	
+
         	aux->sig=even;
         	even=NULL;
         	aux=aux->sig;
-		}		
+		}
 	}
 
     fclose(archivo);
@@ -149,7 +167,7 @@ Evento *leerarchivo(Evento *cima, FILE *archivo){
 	if(cima == NULL){
 		cima = (Evento *)malloc(sizeof(Evento));
 		valor=fread(cima, sizeof(Evento),1,archivo);
-		cima->sig=NULL;	
+		cima->sig=NULL;
 	}else{
 		aux=cima;
 		nuevo= (Evento *)malloc(sizeof(Evento));
@@ -166,6 +184,7 @@ Evento *leerarchivo(Evento *cima, FILE *archivo){
 
 Evento *cargareventos(Evento *cima){
 	FILE * archivo;
+	int i;
     archivo=fopen("eventos.bin", "rb");
     if(archivo==NULL){
 	}else{
@@ -174,12 +193,12 @@ Evento *cargareventos(Evento *cima){
         	long fileSize=ftell(archivo);
         	rewind(archivo);
         	int eventos = (int)(fileSize/(sizeof(Evento)));
-        	
-        	for(int i=0; i<eventos;i++){
+
+        	for(i=0; i<eventos;i++){
         		fseek(archivo,(sizeof(Evento)*i),SEEK_SET);
         		cima=leerarchivo(cima, archivo);
 			}
-				
+
 	}
 	return cima;
 }
@@ -202,35 +221,37 @@ int fechavalida(int d, int m, int a){
 			if(a%4==0 && d>0 && d<30){
 				valido=1;
 			}
-		}	
+		}
 	}
 	return valido;
 }
 
 int main(){
 	int opc, eventos;
-	int dia, mes, anio, id;
+	int dia, mes, anio, id, cap, borr;
 	int f_correcta;
 	char descripcion[100];
 	Evento*top;
 	top=NULL;
-		
+
 	top=cargareventos(top);
-	
+
 	do{
 		printf("\nIngrese la opcion\n1.-Alta de evento\n2.-Baja de evento\n3.-Ver eventos\n4.-Ver cantidad de eventos\n5.-Salir\n");
 		scanf("%d",&opc);
 		system("cls");
 		switch(opc){
-			
+
 			case 1:
 	 			printf("\n---ALTA EVENTO---");
-	 			printf("\nIngrese el dia del evento \n");
+	 			printf("\nIngrese el dia del evento (DD) \n");
 	 			scanf("%d", &dia);
-	 			printf("Ingrese el mes del evento \n");
+	 			printf("Ingrese el mes del evento (MM) \n");
 	 			scanf("%d", &mes);
-	 			printf("Ingrese el a�o del evento \n");
+	 			printf("Ingrese el año del evento (AAAA) \n");
 	 			scanf("%d", &anio);
+	 			printf("Ingrese la capacidad del evento (Numero de personas)\n");
+	 			scanf("%d", &cap);
 	 			f_correcta=fechavalida(dia, mes, anio);
 	 			if(f_correcta>0){
 	 				id=disponibilidad(top, dia, mes, anio);
@@ -238,37 +259,59 @@ int main(){
 						fflush(stdin);
 		   				printf("\nEscribe la descripcion del evento: \n");
 		   				gets(descripcion);
-						top = altaNodo(top, id, dia, mes, anio, descripcion);
+
+						top = altaNodo(top, cap, dia, mes, anio, descripcion);
+						//top = altaNodo(top, id, dia, mes, anio, descripcion);
 					}else{
 						printf("\nFecha ocupada");
-					}		
+					}
 				}else{
 					printf("\nEscribe una fecha valida\n");
 				}
 			break;
-			
+
 			case 2:
 				printf("\n---BAJA EVENTO---");
 				verListas(top);
-				printf("\nIngresa el ID del evento que desea eliminar\n");
-				scanf("%d",&id);
-				eventos = contar(top);
-				if( id>0 && id<=eventos){
-					top = bajaNodo(top, id);
-				}else{
-					printf("\nPosicion invalida");
-				}
+
+				printf("\nIngresa la opcion para eliminar\n1.Por ID\n2.Por fecha\n");
+                scanf("%d",&borr);
+				if(borr==1){
+                    printf("\nIngresa el ID del evento que desea eliminar\n");
+                    scanf("%d",&id);
+                    eventos = contar(top);
+                    if( id>0 && id<=eventos){
+                        top = bajaNodo(top, id);
+                    }else{
+                        printf("\nPosicion invalida");
+                    }
+				}else if(borr==2){
+                    printf("\nIngrese el dia del evento (DD) \n");
+                    scanf("%d", &dia);
+                    printf("Ingrese el mes del evento (MM) \n");
+                    scanf("%d", &mes);
+                    printf("Ingrese el año del evento (AAAA) \n");
+                    scanf("%d", &anio);
+                    top = bajaNodofe(top, dia, mes,anio);
+				}/*else if(borr=3){
+                    fflush(stdin);
+		   			printf("\nEscribe la descripcion del evento: \n");
+		   			gets(descripcion);
+
+                    top = bajaNododes(top, descripcion);
+
+				}*/
 			break;
-			
+
 			case 3:
 				printf("---EVENTOS---");
 				verListas(top);
 			break;
-			
+
 			case 4:
 				eventos = contar(top);
 				printf("\nEl numero de eventos es: %d\n", eventos);
-			break;	
+			break;
 		}
 	}while(opc!=5);
 	guardareventos(top);
