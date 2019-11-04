@@ -12,21 +12,21 @@ typedef struct _Nodo{
 }Nodo;
 
 
-Nodo *crearnodo(int DATO, char dd){
+Nodo *crearnodo(int DATO, char dd, Nodo *i, Nodo *d){
 	Nodo *nuevo;
 	nuevo=(Nodo *)malloc(sizeof(Nodo));
 	nuevo->dato=DATO;
 	nuevo->c=dd;
-	nuevo->sig=NULL;
-	nuevo->izq=NULL;
-	nuevo->der=NULL;
+	nuevo->sig = NULL;
+	nuevo->izq = i;
+	nuevo->der = d;
 	    
 	return nuevo;
 }
 
-Nodo *altapila(Nodo *top, int DATO, char dd){
+Nodo *altapila(Nodo *top, int DATO, char dd, Nodo *i, Nodo *d){
     Nodo *nuevo, *aux;
-    nuevo=crearnodo(DATO,dd);
+    nuevo=crearnodo(DATO,dd,i,d);
     if(top==NULL){
         top=nuevo;
     }else{
@@ -39,7 +39,7 @@ Nodo *altapila(Nodo *top, int DATO, char dd){
     return top;
 }
 
-void dividir(Nodo *top, Nodo **a, Nodo **b ){
+void dividir(Nodo *top, Nodo **a, Nodo **b){
 	Nodo *dos, *uno;
 	uno=top;
 	dos=top->sig;
@@ -57,7 +57,6 @@ void dividir(Nodo *top, Nodo **a, Nodo **b ){
 	uno->sig=NULL;
 	
 }
-
 Nodo *ordenamiento(Nodo *a, Nodo *b){
 	Nodo *resultado = NULL;
 	
@@ -76,7 +75,6 @@ Nodo *ordenamiento(Nodo *a, Nodo *b){
 	}
 	return resultado;
 }
-
 void mergesort(Nodo **top){
 	Nodo *aux = *top;
 	Nodo *a, *b;
@@ -94,8 +92,6 @@ void mergesort(Nodo **top){
 	*top=ordenamiento(a, b);
 }
 
-
-
 Nodo *raices(Nodo *top){
     Nodo *aux, *aux1, *aux2;
     int cont=1, nuevoi;
@@ -112,8 +108,8 @@ Nodo *raices(Nodo *top){
 		if(cont==2 && aux!=NULL){
         	aux2=aux;
         	nuevoi=(aux1->dato)+(aux2->dato);
-    		top=altapila(top, nuevoi, nuevoc);	
-    		mergesort(&top);
+    		top=altapila(top, nuevoi, nuevoc, aux1, aux2);
+			mergesort(&top);
 			//  printf("%d %c\n", nuevoi, nuevoc);
 			//	printf("entra con 2\n");
 		    //	printf("%d %c\n", aux2->dato, aux2->c);
@@ -127,23 +123,62 @@ Nodo *raices(Nodo *top){
 
 void verpila(Nodo *cima){
 	FILE * archivob;
+	int ii, dd;
     archivob=fopen("resultados.txt", "a");
 	Nodo *aux;
 	aux=cima;
 	while(aux!=NULL){
-	    fprintf(archivob,"%d %c \n",aux->dato,aux->c);
+		ii=0;
+		dd=0;
+		if(aux->izq!=NULL){
+			ii=aux->izq->dato;
+		}
+		if(aux->der!=NULL){
+			dd=aux->der->dato;
+		}
+		fprintf(archivob,"%d %c %d %d \n",aux->dato,aux->c,ii,dd);
+	      
+		//fprintf(archivob,"%d %c \n",aux->dato,aux->c);
 	    aux=aux->sig;
 	}
 	fclose(archivob);
 }
 
-Nodo*bajapila(Nodo *cima){
-	Nodo * destruir;
-	destruir = cima;
-    cima=cima->sig;
-	free(destruir);
+void inOrden(Nodo *top){
+    if (top != NULL){
+        inOrden (top->izq);
+        printf(" %d \n",top->dato);
+        inOrden(top->der);
+    }
+}
+
+void preOrden(Nodo *top){
+    if (top != NULL){
+        printf(" %d \n",top->dato);
+        preOrden (top->izq);
+        preOrden(top->der);
+    }
+}
+
+void postOrden(Nodo *top){
+    if (top != NULL){
+        postOrden (top->izq);
+        postOrden(top->der);
+        printf(" %d \n",top->dato);
+    }
+}
+
+Nodo *ultimo(Nodo *top){
+	Nodo *ul;
+	ul=top;
+	if(ul==NULL){
+		return (NULL);
+	}
+	if(ul->sig==NULL){
+		return top;
+	}
 	
-    return cima;
+	return ultimo(top->sig);
 }
 
 int main()
@@ -151,7 +186,10 @@ int main()
 	char c, datochar;
 	int n, cont=0;
     Nodo *top=NULL;
-    FILE * archivo;
+    Nodo *i=NULL;
+    Nodo *d=NULL;
+    Nodo *ul=NULL;
+	FILE * archivo;
     archivo=fopen("arbol.txt", "r");
     
     while((c=getc(archivo))!=EOF){
@@ -161,14 +199,22 @@ int main()
 		}else if(isdigit(c)!=0){
     		n=(float)(c-48);
     		cont++;	
-    		top=altapila(top, n, datochar);	
+    		top=altapila(top, n, datochar, i, d);	
 		}
 	}
 	fclose(archivo);       
-
 	top=raices(top);
-    verpila(top);
+	verpila(top);
 	
+	ul=ultimo(top);
+	
+	printf("Inorden\n");
+	inOrden(ul);
+	printf("Preorden\n");
+	preOrden(ul);
+	printf("Postorden\n");
+	postOrden(ul);	 
+    	
 	return 0;
 }
 
