@@ -94,26 +94,22 @@ void mergesort(Nodo **top){
 
 Nodo *raices(Nodo *top){
     Nodo *aux, *aux1, *aux2;
-    int cont=1, nuevoi;
-    char nuevoc='$';
+    int cont=1, nuevoi, nuevochar;
+    char nuevoc;
     aux=top;
     while(aux!=NULL){
     	if(cont==1){
         	aux1=aux;
-        //	printf("entra con 1\n");
-		//	printf("%d %c\n", aux1->dato, aux1->c);
         	cont++;
 		}
 		aux=aux->sig;
 		if(cont==2 && aux!=NULL){
         	aux2=aux;
         	nuevoi=(aux1->dato)+(aux2->dato);
+        	nuevochar=((int(aux1->c))+(int(aux2->c)))/2;
+        	nuevoc= nuevochar;
     		top=altapila(top, nuevoi, nuevoc, aux1, aux2);
 			mergesort(&top);
-			//  printf("%d %c\n", nuevoi, nuevoc);
-			//	printf("entra con 2\n");
-		    //	printf("%d %c\n", aux2->dato, aux2->c);
-        	//  nuevo=altaraiz(nuevo, aux1, aux2);
         	cont=1;
 			aux=aux->sig;
 		}
@@ -124,7 +120,7 @@ Nodo *raices(Nodo *top){
 void verpila(Nodo *cima){
 	FILE * archivob;
 	int ii, dd;
-    archivob=fopen("resultados.txt", "a");
+    archivob=fopen("P4Lista.txt", "a");
 	Nodo *aux;
 	aux=cima;
 	while(aux!=NULL){
@@ -138,33 +134,35 @@ void verpila(Nodo *cima){
 		}
 		fprintf(archivob,"%d %c %d %d \n",aux->dato,aux->c,ii,dd);
 	      
-		//fprintf(archivob,"%d %c \n",aux->dato,aux->c);
-	    aux=aux->sig;
+		aux=aux->sig;
 	}
 	fclose(archivob);
 }
 
 void inOrden(Nodo *top){
-    if (top != NULL){
+	FILE * archivoc;
+    archivoc=fopen("P4Recorridos.txt", "a");	
+    if(top != NULL){
         inOrden (top->izq);
-        printf(" %d \n",top->dato);
+        fprintf(archivoc,"%d %c\n",top->dato, top->c);
         inOrden(top->der);
     }
+	fclose(archivoc);
 }
 
 void preOrden(Nodo *top){
-    if (top != NULL){
-        printf(" %d \n",top->dato);
+    if(top != NULL){
+        printf("-%d-",top->dato);
         preOrden (top->izq);
         preOrden(top->der);
     }
 }
 
 void postOrden(Nodo *top){
-    if (top != NULL){
+    if(top != NULL){
         postOrden (top->izq);
         postOrden(top->der);
-        printf(" %d \n",top->dato);
+        printf("-%d-",top->dato);
     }
 }
 
@@ -208,13 +206,14 @@ int main()
 	
 	ul=ultimo(top);
 	
-	printf("Inorden\n");
+	printf("\nInorden\n");
 	inOrden(ul);
-	printf("Preorden\n");
+	/*
+	printf("\nPreorden\n");
 	preOrden(ul);
-	printf("Postorden\n");
+	printf("\nPostorden\n");
 	postOrden(ul);	 
-    	
+    */	
 	return 0;
 }
 
