@@ -140,19 +140,16 @@ void verpila(Nodo *cima){
 }
 
 void inOrden(Nodo *top){
-	FILE * archivoc;
-    archivoc=fopen("P4Recorridos.txt", "a");	
     if(top != NULL){
         inOrden (top->izq);
-        fprintf(archivoc,"%d %c\n",top->dato, top->c);
+        printf("-%d %c-",top->dato, top->c);
         inOrden(top->der);
     }
-	fclose(archivoc);
 }
 
 void preOrden(Nodo *top){
     if(top != NULL){
-        printf("-%d-",top->dato);
+        printf("-%d %c-",top->dato, top->c);
         preOrden (top->izq);
         preOrden(top->der);
     }
@@ -162,7 +159,7 @@ void postOrden(Nodo *top){
     if(top != NULL){
         postOrden (top->izq);
         postOrden(top->der);
-        printf("-%d-",top->dato);
+        printf("-%d %c-",top->dato, top->c);
     }
 }
 
@@ -192,8 +189,8 @@ void printPaths(Nodo *top)
 void printPathsRecur(Nodo *top, char path[], int pathLen, char cam){ 
     
 	if(top==NULL) return; 
-  
-    path[0] =  top->c;
+	int valor = top->dato; 
+    path[0] = top->c;
     pathLen++; 
 	path[pathLen] = cam;  
     path[1] =  '-';
@@ -242,13 +239,12 @@ int main()
 	
 	ul=ultimo(top);
 	
-	/*printf("\nInorden\n");
+	printf("\nInorden\n");
 	inOrden(ul);
-*/
 	printf("\nPreorden\n");
 	preOrden(ul);
-//	printf("\nPostorden\n");
-//	postOrden(ul);
+	printf("\nPostorden\n");
+	postOrden(ul);
 	printf("\nCaminos\n");
 	printPaths(ul); 	 
     
