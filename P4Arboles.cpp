@@ -11,6 +11,55 @@ typedef struct _Nodo{
 	struct _Nodo *der;
 }Nodo;
 
+Nodo *crearnodo(int DATO, char dd, Nodo *i, Nodo *d);
+Nodo *altapila(Nodo *top, int DATO, char dd, Nodo *i, Nodo *d);
+void mergesort(Nodo **top);
+Nodo *ordenamiento(Nodo *a, Nodo *b);
+void dividir(Nodo *top, Nodo **a, Nodo **b);
+Nodo *raices(Nodo *top);
+void verpila(Nodo *cima);
+void inOrden(Nodo *top);
+void preOrden(Nodo *top);
+void postOrden(Nodo *top);
+Nodo *ultimo(Nodo *top);
+void imprimir(char [], int, int); 
+void caminorecur(Nodo *top, char [], int, char); 
+void recorridos(Nodo *top); 
+
+int main(){
+	char c, datochar;
+	int n, cont=0;
+    Nodo *top=NULL;
+    Nodo *i=NULL;
+    Nodo *d=NULL;
+    Nodo *ul=NULL;
+	FILE * archivo;
+    archivo=fopen("arbol.txt", "r");
+    
+    while((c=getc(archivo))!=EOF){
+		if(isdigit(c)==0 && c!=' '){
+    		cont++;
+    		datochar=c;	
+		}else if(isdigit(c)!=0){
+    		n=(float)(c-48);
+    		cont++;	
+    		top=altapila(top, n, datochar, i, d);	
+		}
+	}
+	fclose(archivo);       
+	top=raices(top);
+	verpila(top);
+	
+	ul=ultimo(top);
+	
+	inOrden(ul);
+	preOrden(ul);
+	postOrden(ul);
+	recorridos(ul); 	 
+    
+	return 0;
+}
+
 
 Nodo *crearnodo(int DATO, char dd, Nodo *i, Nodo *d){
 	Nodo *nuevo;
@@ -23,7 +72,6 @@ Nodo *crearnodo(int DATO, char dd, Nodo *i, Nodo *d){
 	    
 	return nuevo;
 }
-
 Nodo *altapila(Nodo *top, int DATO, char dd, Nodo *i, Nodo *d){
     Nodo *nuevo, *aux;
     nuevo=crearnodo(DATO,dd,i,d);
@@ -38,7 +86,21 @@ Nodo *altapila(Nodo *top, int DATO, char dd, Nodo *i, Nodo *d){
     }
     return top;
 }
-
+void mergesort(Nodo **top){
+	Nodo *aux = *top;
+	Nodo *a, *b;
+	
+	if((aux==NULL)||(aux->sig==NULL)){
+		return;
+	}
+	
+	dividir(aux, &a, &b);
+	
+	mergesort(&a);
+	mergesort(&b);
+	
+	*top=ordenamiento(a, b);
+}
 void dividir(Nodo *top, Nodo **a, Nodo **b){
 	Nodo *dos, *uno;
 	uno=top;
@@ -75,23 +137,6 @@ Nodo *ordenamiento(Nodo *a, Nodo *b){
 	}
 	return resultado;
 }
-void mergesort(Nodo **top){
-	Nodo *aux = *top;
-	Nodo *a, *b;
-	
-	if((aux==NULL)||(aux->sig==NULL)){
-		return;
-	}
-	
-	
-	dividir(aux, &a, &b);
-	
-	mergesort(&a);
-	mergesort(&b);
-	
-	*top=ordenamiento(a, b);
-}
-
 Nodo *raices(Nodo *top){
     Nodo *aux, *aux1, *aux2;
     int cont=1, nuevoi, nuevochar;
@@ -116,7 +161,6 @@ Nodo *raices(Nodo *top){
     }
     return top;
 }
-
 void verpila(Nodo *cima){
 	FILE * archivob;
 	int ii, dd;
@@ -138,31 +182,33 @@ void verpila(Nodo *cima){
 	}
 	fclose(archivob);
 }
-
 void inOrden(Nodo *top){
+	FILE * archivob;
+    archivob=fopen("P4Inorder.txt", "a");
     if(top != NULL){
         inOrden (top->izq);
-        printf("-%d %c-",top->dato, top->c);
+        fprintf(archivob, "%d-%c\n",top->dato, top->c);
         inOrden(top->der);
     }
 }
-
 void preOrden(Nodo *top){
+	FILE * archivob;
+    archivob=fopen("P4Preorder.txt", "a");
     if(top != NULL){
-        printf("-%d %c-",top->dato, top->c);
+        fprintf(archivob, "%d-%c\n",top->dato, top->c);
         preOrden (top->izq);
         preOrden(top->der);
     }
 }
-
 void postOrden(Nodo *top){
+	FILE * archivob;
+    archivob=fopen("P4Postorder.txt", "a");
     if(top != NULL){
         postOrden (top->izq);
         postOrden(top->der);
-        printf("-%d %c-",top->dato, top->c);
+        fprintf(archivob,"%d-%c\n",top->dato, top->c);
     }
 }
-
 Nodo *ultimo(Nodo *top){
 	Nodo *ul;
 	ul=top;
@@ -176,78 +222,45 @@ Nodo *ultimo(Nodo *top){
 	return ultimo(top->sig);
 }
 
-void printArray(char [], int); 
-void printPathsRecur(Nodo *top, char [], int, char); 
-void printPaths(Nodo *top); 
-  
-void printPaths(Nodo *top)  
-{ 
-  char path[100]; 
-  printPathsRecur(top, path, 0, '0'); 
+void recorridos(Nodo *top){ 
+  char camino[10]; 
+  caminorecur(top, camino, 0, '0'); 
 } 
   
-void printPathsRecur(Nodo *top, char path[], int pathLen, char cam){ 
+void caminorecur(Nodo *top, char camino[], int cont, char cam){ 
     
 	if(top==NULL) return; 
-	int valor = top->dato; 
-    path[0] = top->c;
-    pathLen++; 
-	path[pathLen] = cam;  
-    path[1] =  '-';
+	
+	int valor;
+	camino[0] = top->c;
+    //if(cont==0){
+    //	valor = top->dato; 
+  	//	printf(" %d ", valor);
+	//}
+    //printf("%d ", valor);
+    cont++; 
+	camino[cont] = cam;  
+    camino[1] =  '|';
  	if (top->izq==NULL && top->der==NULL){ 
-    	printArray(path, pathLen+1); 
+    	//imprimir(camino, cont+1); 
+    	valor = top->dato;
+    	imprimir(camino, cont+1, valor); 	
     }
   	else{ 
-    	printPathsRecur(top->izq, path, pathLen, '0'); 
-    	printPathsRecur(top->der, path, pathLen, '1'); 
+    	caminorecur(top->izq, camino, cont, '0'); 
+    	caminorecur(top->der, camino, cont, '1'); 
   	} 
 } 
   
  
-void printArray(char ints[], int len){ 
-  int i; 
-  for (i=0; i<len; i++) { 
-    printf("%c", ints[i]); 
-  } 
-  printf("\n"); 
+void imprimir(char camino[], int cont, int valor){ 
+    int i; 
+    FILE * archivob;
+    archivob=fopen("P4RecorridosHojas.txt", "a");
+  
+    fprintf(archivob, "%d ", valor);
+    for (i=0; i<cont; i++) { 
+    	fprintf(archivob, "%c", camino[i]); 
+    } 
+    fprintf(archivob, "\n"); 
 }  
-
-int main()
-{
-	char c, datochar;
-	int n, cont=0;
-    Nodo *top=NULL;
-    Nodo *i=NULL;
-    Nodo *d=NULL;
-    Nodo *ul=NULL;
-	FILE * archivo;
-    archivo=fopen("arbol.txt", "r");
-    
-    while((c=getc(archivo))!=EOF){
-		if(isdigit(c)==0 && c!=' '){
-    		cont++;
-    		datochar=c;	
-		}else if(isdigit(c)!=0){
-    		n=(float)(c-48);
-    		cont++;	
-    		top=altapila(top, n, datochar, i, d);	
-		}
-	}
-	fclose(archivo);       
-	top=raices(top);
-	verpila(top);
-	
-	ul=ultimo(top);
-	
-	printf("\nInorden\n");
-	inOrden(ul);
-	printf("\nPreorden\n");
-	preOrden(ul);
-	printf("\nPostorden\n");
-	postOrden(ul);
-	printf("\nCaminos\n");
-	printPaths(ul); 	 
-    
-	return 0;
-}
-
