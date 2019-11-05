@@ -179,6 +179,42 @@ Nodo *ultimo(Nodo *top){
 	return ultimo(top->sig);
 }
 
+void printArray(char [], int); 
+void printPathsRecur(Nodo *top, char [], int, char); 
+void printPaths(Nodo *top); 
+  
+void printPaths(Nodo *top)  
+{ 
+  char path[100]; 
+  printPathsRecur(top, path, 0, '0'); 
+} 
+  
+void printPathsRecur(Nodo *top, char path[], int pathLen, char cam){ 
+    
+	if(top==NULL) return; 
+  
+    path[0] =  top->c;
+    pathLen++; 
+	path[pathLen] = cam;  
+    path[1] =  '-';
+ 	if (top->izq==NULL && top->der==NULL){ 
+    	printArray(path, pathLen+1); 
+    }
+  	else{ 
+    	printPathsRecur(top->izq, path, pathLen, '0'); 
+    	printPathsRecur(top->der, path, pathLen, '1'); 
+  	} 
+} 
+  
+ 
+void printArray(char ints[], int len){ 
+  int i; 
+  for (i=0; i<len; i++) { 
+    printf("%c", ints[i]); 
+  } 
+  printf("\n"); 
+}  
+
 int main()
 {
 	char c, datochar;
@@ -206,14 +242,16 @@ int main()
 	
 	ul=ultimo(top);
 	
-	printf("\nInorden\n");
+	/*printf("\nInorden\n");
 	inOrden(ul);
-	/*
+*/
 	printf("\nPreorden\n");
 	preOrden(ul);
-	printf("\nPostorden\n");
-	postOrden(ul);	 
-    */	
+//	printf("\nPostorden\n");
+//	postOrden(ul);
+	printf("\nCaminos\n");
+	printPaths(ul); 	 
+    
 	return 0;
 }
 
